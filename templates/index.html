@@ -11,6 +11,7 @@
           rel='stylesheet' type='text/css'>
     <!-- <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css"> -->
     <script src="/js/jquery.min.js"></script>
+    <script src="https://unpkg.com/rxjs/bundles/Rx.min.js"></script>
     <script src="/js/autoNumeric-min.js"></script>
 
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
@@ -264,136 +265,148 @@
 <h5 id="algo">Código en <a href="https://github.com/melizeche/dolarPy">Github</a></h5>
 
 <script type="text/javascript">
+(function ($) {
 /*
 Sorry, I suck at javascript :'(
 */
-var cchaco;
-var vchaco;
-var calberdi;
-var valberdi;
-var cmaxi;
-var vmaxi;
-var cbcp;
-var vbcp;
-var refbcp;
-var cset;
-var vset;
-var intcompra;
-var intventa;
-var ambcompra;
-var ambventa;
-var mydcompra;
-var mydventa;
-var updated;
+    const $cchaco = $("#cchaco")
+    const $vchaco = $("#vchaco")
+    const $calberdi = $("#calberdi")
+    const $valberdi = $("#valberdi")
+    const $cmaxi = $("#cmaxi")
+    const $vmaxi = $("#vmaxi")
+    const $cbcp = $("#cbcp")
+    const $vbcp = $("#vbcp")
+    const $refbcp = $("#refbcp")
+    const $cset = $("#cset")
+    const $vset = $("#vset")
+    const $intcompra = $("#intcompra")
+    const $intventa = $("#intventa")
+    const $ambcompra = $("#ambcompra")
+    const $ambventa = $("#ambventa")
+    const $mydcompra = $("#mydcompra")
+    const $mydventa = $("#mydventa")
 
-	function get_coti(){
-		$.get("/api/1.0/",
-				function(json){
-					console.log(json);
+    const $updated = $("#updated")
+    const $cuanto = $("#cuanto")
 
-					cchaco = json.dolarpy.cambioschaco.compra;
-					vchaco = json.dolarpy.cambioschaco.venta;
-					calberdi = json.dolarpy.cambiosalberdi.compra;
-					valberdi = json.dolarpy.cambiosalberdi.venta;
-					cmaxi = json.dolarpy.maxicambios.compra;
-					vmaxi = json.dolarpy.maxicambios.venta;
-					cbcp = json.dolarpy.bcp.compra;
-					vbcp = json.dolarpy.bcp.venta;
-					refbcp = json.dolarpy.bcp.referencial_diario;
-					cset = json.dolarpy.set.compra;
-					vset = json.dolarpy.set.venta;
-                    intcompra = json.dolarpy.interfisa.compra;
-                    intventa  = json.dolarpy.interfisa.venta;
-                    ambcompra = json.dolarpy.amambay.compra;
-                    ambventa = json.dolarpy.amambay.venta;
-                    mydcompra = json.dolarpy.mydcambios.compra;
-                    mydventa = json.dolarpy.mydcambios.venta;
+    const $inputStream = Rx.Observable.fromEvent($cuanto, 'keyup');
 
+    $inputStream.subscribe(
+        function (e) {
+            console.log("keyup!")
+            console.log("value from obs", e.target.value)
+        },
+        function (err) {
+            console.log(err);
+        },
+        function () {
+            console.log('Completed');
+        })
 
-					$("#cchaco").text(cchaco).autoNumeric('init');
-					$("#vchaco").text(vchaco).autoNumeric('init');
-					$("#calberdi").text(calberdi).autoNumeric('init');
-					$("#valberdi").text(valberdi).autoNumeric('init');
-					$("#cmaxi").text(cmaxi).autoNumeric('init');
-					$("#vmaxi").text(vmaxi).autoNumeric('init');
-					$("#cbcp").text(cbcp).autoNumeric('init');
-					$("#vbcp").text(vbcp).autoNumeric('init');
-					$("#refbcp").text(refbcp).autoNumeric('init');
-					$("#cset").text(cset).autoNumeric('init');
-					$("#vset").text(vset).autoNumeric('init');
-                    $("#intcompra").text(intcompra).autoNumeric('init');
-                    $("#intventa").text(intventa).autoNumeric('init');
-                    $("#ambcompra").text(ambcompra).autoNumeric('init');
-                    $("#ambventa").text(ambventa).autoNumeric('init');
-                    $("#mydcompra").text(mydcompra).autoNumeric('init');
-                    $("#mydventa").text(mydventa).autoNumeric('init');
-					$("#cuanto").autoNumeric('init');
-					$("#updated").text(json.updated);
-				}
-			);
-	}
+    function get_coti (cb) {
+        $.get("/api/1.0/", function (json) {
+            var api = {}
 
-	$(document).ready(function () {
-		$.extend($.fn.autoNumeric.defaults, {
-						aSep: '.',
-						aDec: ',',
-						aPad: 'false',
-						aSign: '₲ ',
-					});
+            api.cchaco = json.dolarpy.cambioschaco.compra
+            api.vchaco = json.dolarpy.cambioschaco.venta
+            api.calberdi = json.dolarpy.cambiosalberdi.compra
+            api.valberdi = json.dolarpy.cambiosalberdi.venta
+            api.cmaxi = json.dolarpy.maxicambios.compra
+            api.vmaxi = json.dolarpy.maxicambios.venta
+            api.cbcp = json.dolarpy.bcp.compra
+            api.vbcp = json.dolarpy.bcp.venta
+            api.refbcp = json.dolarpy.bcp.referencial_diario
+            api.cset = json.dolarpy.set.compra
+            api.vset = json.dolarpy.set.venta
+            api.intcompra = json.dolarpy.interfisa.compra
+            api.intventa = json.dolarpy.interfisa.venta
+            api.ambcompra = json.dolarpy.amambay.compra
+            api.ambventa = json.dolarpy.amambay.venta
+            api.mydcompra = json.dolarpy.mydcambios.compra
+            api.mydventa = json.dolarpy.mydcambios.venta
 
-		get_coti();
-		$("#cuanto").on('keyup',function(e) {
-			var valor;
-			var calc;
+            $cchaco.text(api.cchaco).autoNumeric('init')
+            $vchaco.text(api.vchaco).autoNumeric('init')
+            $calberdi.text(api.calberdi).autoNumeric('init')
+            $valberdi.text(api.valberdi).autoNumeric('init')
+            $cmaxi.text(api.cmaxi).autoNumeric('init')
+            $vmaxi.text(api.vmaxi).autoNumeric('init')
+            $cbcp.text(api.cbcp).autoNumeric('init')
+            $vbcp.text(api.vbcp).autoNumeric('init')
+            $refbcp.text(api.refbcp).autoNumeric('init')
+            $cset.text(api.cset).autoNumeric('init')
+            $vset.text(api.vset).autoNumeric('init')
+            $intcompra.text(api.intcompra).autoNumeric('init')
+            $intventa.text(api.intventa).autoNumeric('init')
+            $ambcompra.text(api.ambcompra).autoNumeric('init')
+            $ambventa.text(api.ambventa).autoNumeric('init')
+            $mydcompra.text(api.mydcompra).autoNumeric('init')
+            $mydventa.text(api.mydventa).autoNumeric('init')
+            $cuanto.autoNumeric('init')
+            $updated.text(json.updated)
 
+            cb(api)
+        })
+    }
 
-			valor = $("#cuanto").autoNumeric('get') //val()
-			valor = (valor==0 ? 1 : valor);
-			console.log(valor*refbcp);
-			$("#refbcp").autoNumeric('destroy');
-			$("#refbcp").text(valor*refbcp).autoNumeric('init');
-			$("#cbcp").autoNumeric('destroy');
-			$("#cbcp").text(valor*cbcp).autoNumeric('init');
-			$("#vbcp").autoNumeric('destroy');
-			$("#vbcp").text(valor*vbcp).autoNumeric('init');
-			$("#refbcp").autoNumeric('destroy');
-			$("#refbcp").text(valor*refbcp).autoNumeric('init');
-			$("#cchaco").autoNumeric('destroy');
-			$("#cchaco").text(valor*cchaco).autoNumeric('init');
-			$("#vchaco").autoNumeric('destroy');
-			$("#vchaco").text(valor*vchaco).autoNumeric('init');
-			$("#cmaxi").autoNumeric('destroy');
-			$("#cmaxi").text(valor*cmaxi).autoNumeric('init');
-			$("#vmaxi").autoNumeric('destroy');
-			$("#vmaxi").text(valor*vmaxi).autoNumeric('init');
-			$("#calberdi").autoNumeric('destroy');
-			$("#calberdi").text(valor*calberdi).autoNumeric('init');
-			$("#valberdi").autoNumeric('destroy');
-			$("#valberdi").text(valor*valberdi).autoNumeric('init');
-			//
-			$("#cset").autoNumeric('destroy');
-			$("#cset").text(valor*cset).autoNumeric('init');
-			$("#vset").autoNumeric('destroy');
-			$("#vset").text(valor*vset).autoNumeric('init');
-            //
-            $("#intcompra").autoNumeric('destroy');
-            $("#intcompra").text(valor*intcompra).autoNumeric('init');
-            $("#intventa").autoNumeric('destroy');
-            $("#intventa").text(valor*intventa).autoNumeric('init');
-            //
-            $("#ambcompra").autoNumeric('destroy');
-            $("#ambcompra").text(valor*ambcompra).autoNumeric('init');
-            $("#ambventa").autoNumeric('destroy');
-            $("#ambventa").text(valor*ambventa).autoNumeric('init');
-            //
-            $("#mydcompra").autoNumeric('destroy');
-            $("#mydcompra").text(valor*mydcompra).autoNumeric('init');
-            $("#mydventa").autoNumeric('destroy');
-            $("#mydventa").text(valor*mydventa).autoNumeric('init');
-		});
-	});
+    $(document).ready(function () {
 
+        $.extend($.fn.autoNumeric.defaults, {
+            aSep: '.',
+            aDec: ',',
+            aPad: 'false',
+            aSign: '₲ ',
+        })
 
+        get_coti(function (data) {
+            $("#cuanto").on('keyup', function (e) {
+                var valor = $("#cuanto").autoNumeric('get')
+                var valor = (valor == 0 ? 1 : valor)
+
+                console.log(valor * data.refbcp)
+                
+                $refbcp.autoNumeric('destroy')
+                $refbcp.text(valor * data.refbcp).autoNumeric('init')
+                $cbcp.autoNumeric('destroy')
+                $cbcp.text(valor * data.cbcp).autoNumeric('init')
+                $vbcp.autoNumeric('destroy')
+                $vbcp.text(valor * data.vbcp).autoNumeric('init')
+                $refbcp.autoNumeric('destroy')
+                $refbcp.text(valor * data.refbcp).autoNumeric('init')
+                $cchaco.autoNumeric('destroy')
+                $cchaco.text(valor * data.cchaco).autoNumeric('init')
+                $vchaco.autoNumeric('destroy')
+                $vchaco.text(valor * data.vchaco).autoNumeric('init')
+                $cmaxi.autoNumeric('destroy')
+                $cmaxi.text(valor * data.cmaxi).autoNumeric('init')
+                $vmaxi.autoNumeric('destroy')
+                $vmaxi.text(valor * data.vmaxi).autoNumeric('init')
+                $calberdi.autoNumeric('destroy')
+                $calberdi.text(valor * data.calberdi).autoNumeric('init')
+                $valberdi.autoNumeric('destroy')
+                $valberdi.text(valor * data.valberdi).autoNumeric('init')
+                $cset.autoNumeric('destroy')
+                $cset.text(valor * data.cset).autoNumeric('init')
+                $vset.autoNumeric('destroy')
+                $vset.text(valor * data.vset).autoNumeric('init')
+                $intcompra.autoNumeric('destroy')
+                $intcompra.text(valor * data.intcompra).autoNumeric('init')
+                $intventa.autoNumeric('destroy')
+                $intventa.text(valor * data.intventa).autoNumeric('init')
+                $ambcompra.autoNumeric('destroy')
+                $ambcompra.text(valor * data.ambcompra).autoNumeric('init')
+                $ambventa.autoNumeric('destroy')
+                $ambventa.text(valor * data.ambventa).autoNumeric('init')
+                $mydcompra.autoNumeric('destroy')
+                $mydcompra.text(valor * data.mydcompra).autoNumeric('init')
+                $mydventa.autoNumeric('destroy')
+                $mydventa.text(valor * data.mydventa).autoNumeric('init')
+            })
+
+        })
+    })
+})($)
 </script>
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
