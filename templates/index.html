@@ -4,15 +4,13 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DolarPy</title>
-    <link rel="stylesheet"
-          href="https://storage.googleapis.com/code.getmdl.io/1.0.5/material.green-deep_purple.min.css"/>
+    <link rel="stylesheet" href="https://storage.googleapis.com/code.getmdl.io/1.0.5/material.green-deep_purple.min.css"/>
     <script src="https://storage.googleapis.com/code.getmdl.io/1.0.5/material.min.js"></script>
-    <link href='https://fonts.googleapis.com/css?family=Aldrich'
-          rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Aldrich' rel='stylesheet' type='text/css'>
     <!-- <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css"> -->
     <script src="/js/jquery.min.js"></script>
-    <script src="https://unpkg.com/rxjs/bundles/Rx.min.js"></script>
-    <script src="/js/autoNumeric-min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/rxjs/5.0.1/Rx.min.js"></script>
+    <!-- <script src="/js/autoNumeric-min.js"></script> -->
 
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
@@ -46,10 +44,7 @@
 <h1 class="aldrich">💸 DolarPy 💸</h1>
 
 <div class="mdl-textfield mdl-js-textfield">
-    <input class="mdl-textfield__input grande" type="text"
-           id="cuanto"
-           data-a-sign="$ " data-a-dec="," data-a-sep="."
-           placeholder="Monto"><!-- ₲ -->
+    <span class="currency">$</span><input class="mdl-textfield__input grande" type="text" id="cuanto" placeholder="Monto">
     <div class="mdl-tooltip" for="cuanto">
         <strong>Convertir dólares a guaraníes</strong>
     </div>
@@ -266,142 +261,148 @@
 
 <script type="text/javascript">
 (function ($) {
-
-/*
-Sorry, I suck at javascript :'(
-*/
-
-    const $cchaco = $("#cchaco")
-    const $vchaco = $("#vchaco")
-    const $calberdi = $("#calberdi")
-    const $valberdi = $("#valberdi")
-    const $cmaxi = $("#cmaxi")
-    const $vmaxi = $("#vmaxi")
-    const $cbcp = $("#cbcp")
-    const $vbcp = $("#vbcp")
-    const $refbcp = $("#refbcp")
-    const $cset = $("#cset")
-    const $vset = $("#vset")
-    const $intcompra = $("#intcompra")
-    const $intventa = $("#intventa")
-    const $ambcompra = $("#ambcompra")
-    const $ambventa = $("#ambventa")
-    const $mydcompra = $("#mydcompra")
-    const $mydventa = $("#mydventa")
-
-    const $updated = $("#updated")
-    const $cuanto = $("#cuanto")
-
-    const $inputStream = Rx.Observable.fromEvent($cuanto, 'keyup')
-
-    function getCoti (cb) {
-        $.get("/api/1.0/", function (json) {
-            var api = {}
-            var dolarPyJson = json.dolarpy
-
-            api.cchaco = dolarPyJson.cambioschaco.compra
-            api.vchaco = dolarPyJson.cambioschaco.venta
-            api.calberdi = dolarPyJson.cambiosalberdi.compra
-            api.valberdi = dolarPyJson.cambiosalberdi.venta
-            api.cmaxi = dolarPyJson.maxicambios.compra
-            api.vmaxi = dolarPyJson.maxicambios.venta
-            api.cbcp = dolarPyJson.bcp.compra
-            api.vbcp = dolarPyJson.bcp.venta
-            api.refbcp = dolarPyJson.bcp.referencial_diario
-            api.cset = dolarPyJson.set.compra
-            api.vset = dolarPyJson.set.venta
-            api.intcompra = dolarPyJson.interfisa.compra
-            api.intventa = dolarPyJson.interfisa.venta
-            api.ambcompra = dolarPyJson.amambay.compra
-            api.ambventa = dolarPyJson.amambay.venta
-            api.mydcompra = dolarPyJson.mydcambios.compra
-            api.mydventa = dolarPyJson.mydcambios.venta
-
-            $cchaco.text(api.cchaco).autoNumeric('init')
-            $vchaco.text(api.vchaco).autoNumeric('init')
-            $calberdi.text(api.calberdi).autoNumeric('init')
-            $valberdi.text(api.valberdi).autoNumeric('init')
-            $cmaxi.text(api.cmaxi).autoNumeric('init')
-            $vmaxi.text(api.vmaxi).autoNumeric('init')
-            $cbcp.text(api.cbcp).autoNumeric('init')
-            $vbcp.text(api.vbcp).autoNumeric('init')
-            $refbcp.text(api.refbcp).autoNumeric('init')
-            $cset.text(api.cset).autoNumeric('init')
-            $vset.text(api.vset).autoNumeric('init')
-            $intcompra.text(api.intcompra).autoNumeric('init')
-            $intventa.text(api.intventa).autoNumeric('init')
-            $ambcompra.text(api.ambcompra).autoNumeric('init')
-            $ambventa.text(api.ambventa).autoNumeric('init')
-            $mydcompra.text(api.mydcompra).autoNumeric('init')
-            $mydventa.text(api.mydventa).autoNumeric('init')
-            $cuanto.autoNumeric('init')
-            $updated.text(json.updated)
-
-            cb(api)
-        })
-    }
-
     $(document).ready(function () {
 
-        $.extend($.fn.autoNumeric.defaults, {
-            aSep: '.',
-            aDec: ',',
-            aPad: 'false',
-            aSign: '₲ ',
-        })
+        const $input = $("#cuanto")
+        const $updated = $("#updated")
+        const apiUrl = "/api/1.0/"
 
-        getCoti(function (data) {
-            $inputStream.subscribe(
-                function (e) {
-                    console.log("value from obs", e.target.value)
-                    var currentVal = $cuanto.autoNumeric('get')
-                    var valor = currentVal == 0 ? 1 : currentVal
+        const $cchaco = $("#cchaco")
+        const $vchaco = $("#vchaco")
+        const $calberdi = $("#calberdi")
+        const $valberdi = $("#valberdi")
+        const $cmaxi = $("#cmaxi")
+        const $vmaxi = $("#vmaxi")
+        const $cbcp = $("#cbcp")
+        const $vbcp = $("#vbcp")
+        const $refbcp = $("#refbcp")
+        const $cset = $("#cset")
+        const $vset = $("#vset")
+        const $intcompra = $("#intcompra")
+        const $intventa = $("#intventa")
+        const $ambcompra = $("#ambcompra")
+        const $ambventa = $("#ambventa")
+        const $mydcompra = $("#mydcompra")
+        const $mydventa = $("#mydventa")
 
-                    $refbcp.autoNumeric('destroy')
-                    $refbcp.text(valor * data.refbcp).autoNumeric('init')
-                    $cbcp.autoNumeric('destroy')
-                    $cbcp.text(valor * data.cbcp).autoNumeric('init')
-                    $vbcp.autoNumeric('destroy')
-                    $vbcp.text(valor * data.vbcp).autoNumeric('init')
-                    $refbcp.autoNumeric('destroy')
-                    $refbcp.text(valor * data.refbcp).autoNumeric('init')
-                    $cchaco.autoNumeric('destroy')
-                    $cchaco.text(valor * data.cchaco).autoNumeric('init')
-                    $vchaco.autoNumeric('destroy')
-                    $vchaco.text(valor * data.vchaco).autoNumeric('init')
-                    $cmaxi.autoNumeric('destroy')
-                    $cmaxi.text(valor * data.cmaxi).autoNumeric('init')
-                    $vmaxi.autoNumeric('destroy')
-                    $vmaxi.text(valor * data.vmaxi).autoNumeric('init')
-                    $calberdi.autoNumeric('destroy')
-                    $calberdi.text(valor * data.calberdi).autoNumeric('init')
-                    $valberdi.autoNumeric('destroy')
-                    $valberdi.text(valor * data.valberdi).autoNumeric('init')
-                    $cset.autoNumeric('destroy')
-                    $cset.text(valor * data.cset).autoNumeric('init')
-                    $vset.autoNumeric('destroy')
-                    $vset.text(valor * data.vset).autoNumeric('init')
-                    $intcompra.autoNumeric('destroy')
-                    $intcompra.text(valor * data.intcompra).autoNumeric('init')
-                    $intventa.autoNumeric('destroy')
-                    $intventa.text(valor * data.intventa).autoNumeric('init')
-                    $ambcompra.autoNumeric('destroy')
-                    $ambcompra.text(valor * data.ambcompra).autoNumeric('init')
-                    $ambventa.autoNumeric('destroy')
-                    $ambventa.text(valor * data.ambventa).autoNumeric('init')
-                    $mydcompra.autoNumeric('destroy')
-                    $mydcompra.text(valor * data.mydcompra).autoNumeric('init')
-                    $mydventa.autoNumeric('destroy')
-                    $mydventa.text(valor * data.mydventa).autoNumeric('init')
+        function updateUI(updated) {
+            $updated.html(updated);
+        }
+        
+        function formatNum(input) {
+            var input = input.toString().replace(/[\D\s\._\-]+/g, "")
+            input = input ? parseInt(input, 10) : 0
+            $input.val(function () {
+                return (input === 0) ? "" : input.toLocaleString("de-DE")
+            });
+        }
 
+        var formatNumPYG = function (val) {
+            var value = Number(val)
+            return value.toLocaleString("de", { style: "currency", currency: "PYG" }).replace("PYG", "₲")
+        }
+
+        function unformatNum(val) {
+            return val.toString().replace(/\./g, "")
+        }
+
+        function render(res) {
+            $cchaco.text(formatNumPYG(res.cambioschaco.compra))
+            $vchaco.text(formatNumPYG(res.cambioschaco.venta))
+            $calberdi.text(formatNumPYG(res.cambiosalberdi.compra))
+            $valberdi.text(formatNumPYG(res.cambiosalberdi.venta))
+            $cmaxi.text(formatNumPYG(res.maxicambios.compra))
+            $vmaxi.text(formatNumPYG(res.maxicambios.venta))
+            $cbcp.text(formatNumPYG(res.bcp.compra))
+            $vbcp.text(formatNumPYG(res.bcp.venta))
+            $refbcp.text(formatNumPYG(res.bcp.referencial_diario))
+            $cset.text(formatNumPYG(res.set.compra))
+            $vset.text(formatNumPYG(res.set.venta))
+            $intcompra.text(formatNumPYG(res.interfisa.compra))
+            $intventa.text(formatNumPYG(res.interfisa.venta))
+            $ambcompra.text(formatNumPYG(res.amambay.compra))
+            $ambventa.text(formatNumPYG(res.amambay.venta))
+            $mydcompra.text(formatNumPYG(res.mydcambios.compra))
+            $mydventa.text(formatNumPYG(res.mydcambios.venta))
+        }
+
+        function mapObj(fromUser, fromApi) {
+            fromUser = fromUser ? fromUser : 1;
+            let result = fromApi.dolarpy
+            let updated = fromApi.updated
+            updateUI(updated)
+            return {
+                amambay: {
+                    name: "Amambay",
+                    compra: result.amambay.compra * fromUser,
+                    venta: result.amambay.venta * fromUser
                 },
-                function (err) {
-                    console.log(err);
+                bcp: {
+                    name: "BCP",
+                    compra: result.bcp.compra * fromUser,
+                    referencial_diario: result.bcp.referencial_diario * fromUser,
+                    venta: result.bcp.venta * fromUser
                 },
-                function () {
-                    console.log('Completed');
-                })
-        })
+                cambiosalberdi: {
+                    name: "Cambios Alberdi",
+                    compra: result.cambiosalberdi.compra * fromUser,
+                    venta: result.cambiosalberdi.venta * fromUser
+                },
+                cambioschaco: {
+                    name: "Cambios Chaco",
+                    compra: result.cambioschaco.compra * fromUser,
+                    venta: result.cambioschaco.venta * fromUser
+                },
+                interfisa: {
+                    name: "Interfisa",
+                    compra: result.interfisa.compra * fromUser,
+                    venta: result.interfisa.venta * fromUser
+                },
+                maxicambios: {
+                    name: "Maxi Cambios",
+                    compra: result.maxicambios.compra * fromUser,
+                    venta: result.maxicambios.venta * fromUser
+                },
+                mydcambios: {
+                    name: "MYD Cambios",
+                    compra: result.mydcambios.compra * fromUser,
+                    venta: result.mydcambios.venta * fromUser
+                },
+                set: {
+                    name: "SET",
+                    compra: result.set.compra * fromUser,
+                    venta: result.set.venta * fromUser
+                }
+            }
+        }
+
+        let inputStream$ = Rx.Observable.fromEvent($input, 'keyup')
+            .map(event => {
+                if ($.inArray(event.keyCode, [38, 40, 37, 39]) !== -1)
+                    return
+                formatNum(event.target.value)
+                return unformatNum(event.target.value)
+            })
+            .debounceTime(250)
+
+        let apiStream$ = Rx.Observable.fromPromise($.get(apiUrl))
+            .catch(() => Rx.Observable.empty());
+
+        apiStream$
+            .map(val => mapObj(1, val))
+            .subscribe(result => {
+                render(result)
+            })
+
+        Rx.Observable
+            .combineLatest(
+                inputStream$,
+                apiStream$,
+                (fromUser, fromApi) => mapObj(fromUser, fromApi)
+            )
+            .subscribe((result) => {
+                render(result)
+            });
     })
 })($)
 </script>
