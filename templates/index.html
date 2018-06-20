@@ -282,75 +282,74 @@
 <script type="text/javascript">
 (function ($) {
     $(document).ready(function () {
+        const apiUrl = "/api/1.0/";
+        // DOM cache
+        const $input = $("#cuanto");
+        const $updated = $("#updated");
+        const $cchaco = $("#cchaco");
+        const $vchaco = $("#vchaco");
+        const $calberdi = $("#calberdi");
+        const $valberdi = $("#valberdi");
+        const $cmaxi = $("#cmaxi");
+        const $vmaxi = $("#vmaxi");
+        const $cbcp = $("#cbcp");
+        const $vbcp = $("#vbcp");
+        const $refbcp = $("#refbcp");
+        const $cset = $("#cset");
+        const $vset = $("#vset");
+        const $intcompra = $("#intcompra");
+        const $intventa = $("#intventa");
+        const $ambcompra = $("#ambcompra");
+        const $ambventa = $("#ambventa");
+        const $mydcompra = $("#mydcompra");
+        const $mydventa = $("#mydventa");
 
-        const $input = $("#cuanto")
-        const $updated = $("#updated")
-        const apiUrl = "/api/1.0/"
-
-        const $cchaco = $("#cchaco")
-        const $vchaco = $("#vchaco")
-        const $calberdi = $("#calberdi")
-        const $valberdi = $("#valberdi")
-        const $cmaxi = $("#cmaxi")
-        const $vmaxi = $("#vmaxi")
-        const $cbcp = $("#cbcp")
-        const $vbcp = $("#vbcp")
-        const $refbcp = $("#refbcp")
-        const $cset = $("#cset")
-        const $vset = $("#vset")
-        const $intcompra = $("#intcompra")
-        const $intventa = $("#intventa")
-        const $ambcompra = $("#ambcompra")
-        const $ambventa = $("#ambventa")
-        const $mydcompra = $("#mydcompra")
-        const $mydventa = $("#mydventa")
-
-        function updateUI(updated) {
+        var renderAPIupdate = function (updated) {
             $updated.html(updated);
-        }
+        };
         
-        function formatNum(input) {
-            var input = input.toString().replace(/[\D\s\._\-]+/g, "")
-            input = input ? parseInt(input, 10) : 0
+        var formatNum = function (input) {
+            var input = input.toString().replace(/[\D\s\._\-]+/g, "");
+            input = input ? parseInt(input, 10) : 0;
             $input.val(function () {
-                return (input === 0) ? "" : input.toLocaleString("de-DE")
+                return (input === 0) ? "" : input.toLocaleString("de-DE");
             });
-        }
+        };
 
         var formatNumPYG = function (val) {
-            var value = Number(val)
-            return value.toLocaleString("de", { style: "currency", currency: "PYG" }).replace("PYG", "₲")
-        }
+            var value = Number(val);
+            return value.toLocaleString("de-DE", { style: "currency", currency: "PYG" }).replace("PYG", "₲");
+        };
 
-        function unformatNum(val) {
-            return val.toString().replace(/\./g, "")
-        }
+        var unformatNum = function (val) {
+            return val.toString().replace(/\./g, "");
+        };
 
-        function render(res) {
-            $cchaco.text(formatNumPYG(res.cambioschaco.compra))
-            $vchaco.text(formatNumPYG(res.cambioschaco.venta))
-            $calberdi.text(formatNumPYG(res.cambiosalberdi.compra))
-            $valberdi.text(formatNumPYG(res.cambiosalberdi.venta))
-            $cmaxi.text(formatNumPYG(res.maxicambios.compra))
-            $vmaxi.text(formatNumPYG(res.maxicambios.venta))
-            $cbcp.text(formatNumPYG(res.bcp.compra))
-            $vbcp.text(formatNumPYG(res.bcp.venta))
-            $refbcp.text(formatNumPYG(res.bcp.referencial_diario))
-            $cset.text(formatNumPYG(res.set.compra))
-            $vset.text(formatNumPYG(res.set.venta))
-            $intcompra.text(formatNumPYG(res.interfisa.compra))
-            $intventa.text(formatNumPYG(res.interfisa.venta))
-            $ambcompra.text(formatNumPYG(res.amambay.compra))
-            $ambventa.text(formatNumPYG(res.amambay.venta))
-            $mydcompra.text(formatNumPYG(res.mydcambios.compra))
-            $mydventa.text(formatNumPYG(res.mydcambios.venta))
-        }
+        var render = function (res) {
+            $cchaco.text(formatNumPYG(res.cambioschaco.compra));
+            $vchaco.text(formatNumPYG(res.cambioschaco.venta));
+            $calberdi.text(formatNumPYG(res.cambiosalberdi.compra));
+            $valberdi.text(formatNumPYG(res.cambiosalberdi.venta));
+            $cmaxi.text(formatNumPYG(res.maxicambios.compra));
+            $vmaxi.text(formatNumPYG(res.maxicambios.venta));
+            $cbcp.text(formatNumPYG(res.bcp.compra));
+            $vbcp.text(formatNumPYG(res.bcp.venta));
+            $refbcp.text(formatNumPYG(res.bcp.referencial_diario));
+            $cset.text(formatNumPYG(res.set.compra));
+            $vset.text(formatNumPYG(res.set.venta));
+            $intcompra.text(formatNumPYG(res.interfisa.compra));
+            $intventa.text(formatNumPYG(res.interfisa.venta));
+            $ambcompra.text(formatNumPYG(res.amambay.compra));
+            $ambventa.text(formatNumPYG(res.amambay.venta));
+            $mydcompra.text(formatNumPYG(res.mydcambios.compra));
+            $mydventa.text(formatNumPYG(res.mydcambios.venta));
+        };
 
-        function mapObj(fromUser, fromApi) {
+        var mapObj = function (fromUser, fromApi) {
             fromUser = fromUser ? fromUser : 1;
             let result = fromApi.dolarpy
             let updated = fromApi.updated
-            updateUI(updated)
+            renderAPIupdate(updated)
             return {
                 amambay: {
                     name: "Amambay",
@@ -394,25 +393,23 @@
                     venta: result.set.venta * fromUser
                 }
             }
-        }
+        };
 
         let inputStream$ = Rx.Observable.fromEvent($input, 'keyup')
             .map(event => {
-                if ($.inArray(event.keyCode, [38, 40, 37, 39]) !== -1)
-                    return
-                formatNum(event.target.value)
-                return unformatNum(event.target.value)
+                if ($.inArray(event.keyCode, [38, 40, 37, 39]) !== -1) return
+                var value = event.target.value;
+                formatNum(value);
+                return unformatNum(value);
             })
-            .debounceTime(250)
+            .debounceTime(250);
 
         let apiStream$ = Rx.Observable.fromPromise($.get(apiUrl))
             .catch(() => Rx.Observable.empty());
 
         apiStream$
             .map(val => mapObj(1, val))
-            .subscribe(result => {
-                render(result)
-            })
+            .subscribe(result => render(result));
 
         Rx.Observable
             .combineLatest(
@@ -420,9 +417,7 @@
                 apiStream$,
                 (fromUser, fromApi) => mapObj(fromUser, fromApi)
             )
-            .subscribe((result) => {
-                render(result)
-            });
+            .subscribe((result) => render(result));
     })
 })($)
 </script>
