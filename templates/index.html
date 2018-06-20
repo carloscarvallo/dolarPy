@@ -35,21 +35,41 @@
         margin-left: auto;
         font-weight: bold;
         }
-        .mdl-textfield__input.grande{
+        .mdl-textfield__input.grande {
         font-size: 40px;
+        }
+        .mdl-textfield--expandable {
+            margin-left: 10px;
+        }
+        .mdl-textfield .mdl-button {
+            top: 53px;
+        }
+        .mdl-button .material-icons {
+            font-style: initial;
+            font-size: 40px;
+        }
+        .mdl-textfield__label {
+            font-size: 30px;
+            top: 39px;
+        }
+        .mdl-textfield.custom {
+            margin-left: 35px;
+            width: 290px;
         }
     </style>
 </head>
 <body style="background-color:#EFEFEF;">
 <h1 class="aldrich">💸 DolarPy 💸</h1>
 
-<div class="mdl-textfield mdl-js-textfield">
-    <span class="currency">$</span><input class="mdl-textfield__input grande" type="text" id="cuanto" placeholder="Monto">
-    <div class="mdl-tooltip" for="cuanto">
-        <strong>Convertir dólares a guaraníes</strong>
+<div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable">
+    <label class="mdl-button mdl-js-button mdl-button--icon" for="cuanto">
+        <i class="material-icons">$</i>
+    </label>
+    <div class="mdl-textfield custom">
+        <input class="mdl-textfield__input grande" type="text" id="cuanto">
+        <label class="mdl-textfield__label grande" for="cuanto">Monto</label>
     </div>
 </div>
-
 
 <div class="mdl-grid">
     <div class="mdl-cell mdl-cell--3-col">
